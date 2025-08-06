@@ -32,10 +32,22 @@ export default function App() {
     }, []);
 
     const onGenerateText = useCallback(async () => {
-        const result = await FoundationModels.generateText({
-            prompt: "Hello, how are you?",
-        });
-        console.log(result);
+        try {
+            const session = await FoundationModels.configureSession({
+                instructions: "You are a helpful assistant.",
+            });
+
+            console.log({ session });
+
+            const response = await session.generateText({
+                prompt: "Explain React Native in one sentence",
+            });
+
+            console.log(response);
+            session.dispose();
+        } catch (error) {
+            console.error(error);
+        }
     }, []);
 
     const onGenerateStructuredOutput = useCallback(async () => {
