@@ -22,14 +22,7 @@ extension ExpoAppleFoundationModelsModule {
     #endif
   }
 
-  func configureSession(config: NSDictionary) -> Bool {
-    let model = SystemLanguageModel.default
-
-    if model.availability != .available {
-      print("Foundation Models are not available")
-      return false
-    }
-
+  func configureSession(config: NSDictionary) {
     let instructions = Instructions {
       if let prompt = config["instructions"] as? String {
         prompt
@@ -40,7 +33,6 @@ extension ExpoAppleFoundationModelsModule {
 
     let tools = Array(registeredTools.values)
     self.session = LanguageModelSession(tools: tools, instructions: instructions)
-    return true
   }
 
   func generateStructuredOutput(options: NSDictionary) async throws -> Any {

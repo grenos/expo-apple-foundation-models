@@ -15,7 +15,7 @@ public class ExpoAppleFoundationModelsModule: Module {
       return isFoundationModelsEnabled()
     }
 
-    AsyncFunction("configureSession") { (config: NSDictionary) -> Bool in
+    AsyncFunction("configureSession") { (config: NSDictionary) in
       return configureSession(config: config)
     }
 
@@ -24,7 +24,7 @@ public class ExpoAppleFoundationModelsModule: Module {
     }
 
     AsyncFunction("generateText") { (options: NSDictionary) throws -> String in
-      Task { return try await generateText(options: NSDictionary) }
+      Task { return try await generateText(options: options) }
     }
 
     AsyncFunction("resetSession") { () -> Bool in
@@ -111,9 +111,6 @@ class BridgeTool: Tool, @unchecked Sendable {
         
         let id = UUID().uuidString
         let toolOutput = try await module.invokeTool(name: name, id: id, parameters: invocationArgs)
-        guard let toolOutput = toolOutput as? Prompt else {
-            throw NSError(domain: "BridgeToolError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Tool output is not a PromptRepresentable"])
-        }
         return Prompt(toolOutput)
     }
 }
