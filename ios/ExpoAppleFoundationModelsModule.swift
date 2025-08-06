@@ -1,48 +1,78 @@
 import ExpoModulesCore
+import FoundationModels
 
 public class ExpoAppleFoundationModelsModule: Module {
-  // Each module class must implement the definition function. The definition consists of components
-  // that describes the module's functionality and behavior.
-  // See https://docs.expo.dev/modules/module-api for more details about available components.
+   // MARK: Declarations [END]
   public func definition() -> ModuleDefinition {
-    // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
-    // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
-    // The module will be accessible from `requireNativeModule('ExpoAppleFoundationModels')` in JavaScript.
-    Name("ExpoAppleFoundationModels")
+    Name("FoundationModels")
 
-    // Sets constant properties on the module. Can take a dictionary or a closure that returns a dictionary.
-    Constants([
-      "PI": Double.pi
-    ])
-
-    // Defines event names that the module can send to JavaScript.
-    Events("onChange")
-
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      return "Hello world! 👋"
+    Function("supportedEvents") { () -> [String] in
+      return ["ToolInvocation"]
     }
 
-    // Defines a JavaScript function that always returns a Promise and whose native code
-    // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("setValueAsync") { (value: String) in
-      // Send an event to JavaScript.
-      self.sendEvent("onChange", [
-        "value": value
-      ])
+    AsyncFunction("isFoundationModelsEnabled") { () -> String in
+      return isFoundationModelsEnabled()
     }
 
-    // Enables the module to be used as a native view. Definition components that are accepted as part of the
-    // view definition: Prop, Events.
-    View(ExpoAppleFoundationModelsView.self) {
-      // Defines a setter for the `url` prop.
-      Prop("url") { (view: ExpoAppleFoundationModelsView, url: URL) in
-        if view.webView.url != url {
-          view.webView.load(URLRequest(url: url))
-        }
-      }
+    AsyncFunction("configureSession") { (config: NSDictionary) -> Bool in
+      return configureSession(config: config)
+    }
 
-      Events("onLoad")
+    AsyncFunction("generateStructuredOutput") { (options: NSDictionary) throws -> Any in
+      return try generateStructuredOutput(options: options)
+    }
+
+    AsyncFunction("generateText") { (options: NSDictionary) throws -> Any in
+      return try generateText(prompt: options["prompt"] as? String ?? "")
+    }
+
+    AsyncFunction("resetSession") { () -> Bool in
+      return resetSession()
+    }
+
+    AsyncFunction("generateWithTools") { (options: NSDictionary) throws -> Any in
+      return try generateWithTools(options: options)
     }
   }
+  // MARK: Declarations [END]
+
+    private var session: LanguageModelSession?
+    private var registeredTools: [String: BridgeTool] = [:]
+    private var toolHandlers: [String: (String, [String: Any]) -> Void] = [:]
+    private var toolTimeout: Int = 30000
+
+  // MARK: Generables [START]
+    @Generable
+      struct GenerableString: Codable {
+      @Guide(description: "A string value")
+      var value: String
+    }
+
+    @Generable
+    struct GenerableInt: Codable {
+      @Guide(description: "An integer value")
+      var value: Int
+    }
+
+    @Generable
+    struct GenerableNumber: Codable {
+      @Guide(description: "A floating-point number")
+      var value: Double
+    }
+
+    @Generable
+    struct GenerableBool: Codable {
+      @Guide(description: "A boolean value")
+      var value: Bool
+    }
+  // MARK: Generables [END]
+
+  // MARK: Internal Functions [START]
+  func resetSession() -> Bool {
+    session = nil
+    registeredTools.removeAll()
+    toolHandlers.removeAll()
+    return true
+  }
+  // MARK: Internal Functions [END]
 }

@@ -1,31 +1,41 @@
 {
-  "expo": {
-    "name": "expo-apple-foundation-models-example",
-    "slug": "expo-apple-foundation-models-example",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "expo.modules.applefoundationmodels.example"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true,
-      "package": "expo.modules.applefoundationmodels.example"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+    "expo": {
+        "name": "expo-apple-foundation-models-example",
+        "slug": "expo-apple-foundation-models-example",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/icon.png",
+        "userInterfaceStyle": "light",
+        "newArchEnabled": true,
+        "splash": {
+            "image": "./assets/splash-icon.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#ffffff"
+        },
+        "plugins": [
+            [
+                "expo-build-properties",
+                {
+                    "ios": {
+                        "deploymentTarget": "26.0"
+                    }
+                }
+            ]
+        ],
+        "ios": {
+            "supportsTablet": true,
+            "bundleIdentifier": "expo.modules.applefoundationmodels.example"
+        },
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/adaptive-icon.png",
+                "backgroundColor": "#ffffff"
+            },
+            "edgeToEdgeEnabled": true,
+            "package": "expo.modules.applefoundationmodels.example"
+        },
+        "web": {
+            "favicon": "./assets/favicon.png"
+        }
     }
-  }
 }

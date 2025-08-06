@@ -1,12 +1,17 @@
-import { NativeModule, requireNativeModule } from 'expo';
+import { NativeModule, requireNativeModule } from "expo";
 
-import { ExpoAppleFoundationModelsModuleEvents } from './ExpoAppleFoundationModels.types';
+import { ExpoAppleFoundationModels } from "./ExpoAppleFoundationModels.types";
 
-declare class ExpoAppleFoundationModelsModule extends NativeModule<ExpoAppleFoundationModelsModuleEvents> {
-  PI: number;
-  hello(): string;
-  setValueAsync(value: string): Promise<void>;
+declare class ExpoAppleFoundationModelsModule extends NativeModule<ExpoAppleFoundationModels> {
+    supportedEvents(): [string];
+    isFoundationModelsEnabled(): Promise<string>;
+    configureSession(config: any): Promise<boolean>;
+    generateStructuredOutput(options: any): Promise<any>;
+    generateText(options: any): Promise<any>;
+    resetSession(): Promise<boolean>;
+    generateWithTools(options: any): Promise<any>;
 }
 
-// This call loads the native module object from the JSI.
-export default requireNativeModule<ExpoAppleFoundationModelsModule>('ExpoAppleFoundationModels');
+export default requireNativeModule<ExpoAppleFoundationModelsModule>(
+    "FoundationModels"
+);
