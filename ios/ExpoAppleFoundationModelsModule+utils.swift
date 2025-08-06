@@ -1,6 +1,7 @@
 import ExpoModulesCore
 import FoundationModels
 
+@available(iOS 26, *)
 extension ExpoAppleFoundationModelsModule {
       func dynamicSchema(from json: [String: Any], name: String = "Root") -> DynamicGenerationSchema {
       var properties: [DynamicGenerationSchema.Property] = []
@@ -104,5 +105,35 @@ extension ExpoAppleFoundationModelsModule {
 
       // Fallback
       return "\(content)"
+  }
+
+  func handleGeneratedError(_ error: LanguageModelSession.GenerationError) -> String {
+    switch error {
+    case .exceededContextWindowSize(let context):
+        return presentGeneratedError(error, context: context)
+    case .assetsUnavailable(let context):
+        return presentGeneratedError(error, context: context)
+    case .guardrailViolation(let context):
+        return presentGeneratedError(error, context: context)
+    case .unsupportedGuide(let context):
+        return presentGeneratedError(error, context: context)
+    case .unsupportedLanguageOrLocale(let context):
+        return presentGeneratedError(error, context: context)
+    case .decodingFailure(let context):
+        return presentGeneratedError(error, context: context)
+    case .rateLimited(let context):
+        return presentGeneratedError(error, context: context)
+    default:
+        return "Failed to respond: \(error.localizedDescription)"
+    }
+  }
+
+  func presentGeneratedError(_ error: LanguageModelSession.GenerationError, context: LanguageModelSession.GenerationError.Context) -> String {
+    return """
+        Failed to respond: \(error.localizedDescription).
+        Failure reason: \(String(describing: error.failureReason)).
+        Recovery suggestion: \(String(describing: error.recoverySuggestion)).
+        Context: \(context)
+        """
   }
 }

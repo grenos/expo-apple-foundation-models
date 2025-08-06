@@ -1,10 +1,10 @@
 import ExpoModulesCore
 import FoundationModels
 
+@available(iOS 26, *)
 extension ExpoAppleFoundationModelsModule {
   func isFoundationModelsEnabled() -> String {
     #if canImport(FoundationModels)
-      if #available(iOS 26, *) {
         // SystemLanguageModel is available in FoundationModels
         let model = SystemLanguageModel.default
           switch model.availability {
@@ -17,9 +17,6 @@ extension ExpoAppleFoundationModelsModule {
           default:
             return "unavailable"
           }
-      } else {
-        return "unavailable"
-      }
     #else
       return "unavailable"
     #endif
@@ -46,61 +43,57 @@ extension ExpoAppleFoundationModelsModule {
     return true
   }
 
-  func generateStructuredOutput(options: NSDictionary) throws -> Any {
+  func generateStructuredOutput(options: NSDictionary) async throws -> String {
        guard let session = session else {
-        throw "SESSION_NOT_CONFIGURED"
+        throw NSError(domain: "BridgeToolError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Session not configured"])
       }
 
       guard let schema = options["structure"] as? [String: Any] else {
-        throw "INVALID_INPUT"
+        throw NSError(domain: "generateStructuredOutput", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid input"])
       }
 
       guard let prompt = options["prompt"] as? String else {
-        throw "INVALID_INPUT"
+        throw NSError(domain: "generateStructuredOutput", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid input"])
       }
       
       let _dynamicSchema: GenerationSchema
       do {
         _dynamicSchema = try GenerationSchema(root: dynamicSchema(from: schema), dependencies: [])
       } catch {
-        throw "GENERATION_SCHEMA_ERROR"
+        throw NSError(domain: "generateStructuredOutput", code: 1, userInfo: [NSLocalizedDescriptionKey: "Generation schema error"])
       }
 
-      Task {
-        do {
-          let result = try await session.respond(
-            to: prompt,
-            schema: _dynamicSchema,
-            includeSchemaInPrompt: false,
-            options: GenerationOptions(sampling: .greedy)
-          )
-          let flattened = try flattenGeneratedContent(result.content)
-          return flattened
-        } catch {
-          throw "GENERATION_FAILED"
-        }
+      do {
+        let result = try await session.respond(
+          to: prompt,
+          schema: _dynamicSchema,
+          includeSchemaInPrompt: false,
+          options: GenerationOptions(sampling: .greedy)
+        )
+        let flattened = try flattenGeneratedContent(result.content)
+        return flattened
+      } catch {
+        throw NSError(domain: "generateStructuredOutput", code: 1, userInfo: [NSLocalizedDescriptionKey: "Generation failed"])
       }
   }
 
-  func generateText(options: NSDictionary) throws -> Any {
+  func generateText(options: NSDictionary) async throws -> String {
      guard let session = session else {
-        throw "SESSION_NOT_CONFIGURED"
+        throw NSError(domain: "generateText", code: 1, userInfo: [NSLocalizedDescriptionKey: "Session not configured"])
       }
 
       guard let prompt = options["prompt"] as? String else {
-        throw "INVALID_INPUT"
+        throw NSError(domain: "generateText", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid input"])
       }
 
-      Task {
-        do {
-          let result = try await session.respond(
+      do {
+        let result = try await session.respond(
           to: prompt,
           options: GenerationOptions(sampling: .greedy)
-          )
-          return result.content
-        } catch let error{
-          throw "GENERATION_FAILED"
-        }
-      } 
+        )
+        return result.content
+      } catch {
+        throw NSError(domain: "generateText", code: 1, userInfo: [NSLocalizedDescriptionKey: "Generation failed"])
+      }
   }
 }

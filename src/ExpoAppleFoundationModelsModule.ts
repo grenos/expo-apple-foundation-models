@@ -1,16 +1,13 @@
 import { NativeModule, requireNativeModule } from "expo";
+import {
+    ExpoAppleFoundationModels,
+    ExpoAppleFoundationModelsEvents,
+} from "./ExpoAppleFoundationModels.types";
 
-import { ExpoAppleFoundationModels } from "./ExpoAppleFoundationModels.types";
+type ExpoAppleFoundationModelsType = ExpoAppleFoundationModels &
+    ExpoAppleFoundationModelsEvents;
 
-declare class ExpoAppleFoundationModelsModule extends NativeModule<ExpoAppleFoundationModels> {
-    supportedEvents(): [string];
-    isFoundationModelsEnabled(): Promise<string>;
-    configureSession(config: any): Promise<boolean>;
-    generateStructuredOutput(options: any): Promise<any>;
-    generateText(options: any): Promise<any>;
-    resetSession(): Promise<boolean>;
-    generateWithTools(options: any): Promise<any>;
-}
+declare class ExpoAppleFoundationModelsModule extends NativeModule<ExpoAppleFoundationModelsType> {}
 
 export default requireNativeModule<ExpoAppleFoundationModelsModule>(
     "FoundationModels"

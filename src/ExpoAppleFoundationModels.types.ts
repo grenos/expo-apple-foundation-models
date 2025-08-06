@@ -59,7 +59,24 @@ export type FoundationModelsAvailability =
     | "modelNotReady"
     | "unavailable";
 
+export type ToolInvocationEvent = {
+    name: string;
+    id: string;
+    parameters: any;
+};
+
+export type ExpoAppleFoundationModelsEvents = {
+    onChangeToolInvocation: (params: ToolInvocationEvent) => void;
+};
+
 export type ExpoAppleFoundationModels = {
     supportedEvents: () => [string];
-    isFoundationModelsEnabled: () => Promise<string>;
+    isFoundationModelsEnabled: () => Promise<FoundationModelsAvailability>;
+    configureSession: (config: LLMConfigOptions) => Promise<boolean>;
+    generateStructuredOutput: (options: LLMGenerateOptions) => Promise<any>;
+    generateText: (options: LLMGenerateTextOptions) => Promise<string>;
+    resetSession: () => Promise<boolean>;
+    generateWithTools: (
+        options: LLMGenerateWithToolsOptions
+    ) => Promise<string>;
 };

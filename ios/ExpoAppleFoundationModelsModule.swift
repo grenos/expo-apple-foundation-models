@@ -1,5 +1,6 @@
 import ExpoModulesCore
 import FoundationModels
+
 @available(iOS 26, *)
 public class ExpoAppleFoundationModelsModule: Module {
    // MARK: Declarations [END]
@@ -19,19 +20,19 @@ public class ExpoAppleFoundationModelsModule: Module {
     }
 
     AsyncFunction("generateStructuredOutput") { (options: NSDictionary) throws -> Any in
-      return try generateStructuredOutput(options: options)
+      Task { return try await generateStructuredOutput(options: options) }
     }
 
-    AsyncFunction("generateText") { (options: NSDictionary) throws -> Any in
-      return try generateText(options: NSDictionary)
+    AsyncFunction("generateText") { (options: NSDictionary) throws -> String in
+      Task { return try await generateText(options: NSDictionary) }
     }
 
     AsyncFunction("resetSession") { () -> Bool in
       return resetSession()
     }
 
-    AsyncFunction("generateWithTools") { (options: NSDictionary) throws -> Any in
-      return try generateWithTools(options: options)
+    AsyncFunction("generateWithTools") { (options: NSDictionary) throws -> String in
+      Task { return try await generateWithTools(options: options) }
     }
   }
   // MARK: Declarations [END]
@@ -75,4 +76,44 @@ public class ExpoAppleFoundationModelsModule: Module {
     return true
   }
   // MARK: Internal Functions [END]
+}
+
+
+@available(iOS 26, *)
+class BridgeTool: Tool, @unchecked Sendable {
+
+    typealias Arguments = GeneratedContent
+
+    let name: String
+    let description: String
+    let schema: GenerationSchema
+    private weak var module: ExpoAppleFoundationModelsModule?
+
+    var parameters: GenerationSchema {
+        return schema
+    }
+  
+    init(name: String, description: String, parameters: [String: [String: Any]], module: ExpoAppleFoundationModelsModule) {
+        self.name = name
+        self.description = description
+        self.module = module
+        
+        let rootSchema = module.dynamicSchema(from: parameters, name: name)
+        self.schema = try! GenerationSchema(root: rootSchema, dependencies: [])
+    }
+
+    func call(arguments: GeneratedContent) async throws -> Prompt {
+        guard let module = module else {
+            throw NSError(domain: "BridgeToolError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Module reference lost"])
+        }
+    
+        let invocationArgs = try module.flattenGeneratedContent(arguments) as? [String: Any] ?? [:]
+        
+        let id = UUID().uuidString
+        let toolOutput = try await module.invokeTool(name: name, id: id, parameters: invocationArgs)
+        guard let toolOutput = toolOutput as? Prompt else {
+            throw NSError(domain: "BridgeToolError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Tool output is not a PromptRepresentable"])
+        }
+        return Prompt(toolOutput)
+    }
 }
