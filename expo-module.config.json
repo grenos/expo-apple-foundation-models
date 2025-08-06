@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["ExpoAppleFoundationModelsModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.applefoundationmodels.ExpoAppleFoundationModelsModule"]
+  }
+}
