@@ -22,7 +22,7 @@ extension ExpoAppleFoundationModelsModule {
     #endif
   }
 
-  func configureSession(config: NSDictionary) {
+  func configureSession(config: [String: Any]) {
     let instructions = Instructions {
       if let prompt = config["instructions"] as? String {
         prompt
@@ -35,7 +35,7 @@ extension ExpoAppleFoundationModelsModule {
     self.session = LanguageModelSession(tools: tools, instructions: instructions)
   }
 
-  func generateStructuredOutput(options: NSDictionary) async throws -> Any {
+  func generateStructuredOutput(options: [String: Any]) async throws -> Any {
        guard let session = session else {
         throw NSError(domain: "BridgeToolError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Session not configured"])
       }
@@ -69,7 +69,7 @@ extension ExpoAppleFoundationModelsModule {
       }
   }
 
-  func generateText(options: NSDictionary) async throws -> String {
+  func generateText(options: [String: Any]) async throws -> String {
      guard let session = session else {
         throw NSError(domain: "generateText", code: 1, userInfo: [NSLocalizedDescriptionKey: "Session not configured"])
       }

@@ -34,7 +34,7 @@ extension ExpoAppleFoundationModelsModule {
     return true
   }
 
-  func generateWithTools(options: NSDictionary) async throws -> String {
+  func generateWithTools(options: [String: Any]) async throws -> String {
     guard let session = session else {
       throw NSError(domain: "generateWithTools", code: 1, userInfo: [NSLocalizedDescriptionKey: "Session not configured"])
     }

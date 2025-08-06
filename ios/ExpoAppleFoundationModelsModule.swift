@@ -7,32 +7,32 @@ public class ExpoAppleFoundationModelsModule: Module {
   public func definition() -> ModuleDefinition {
     Name("FoundationModels")
 
-    Function("supportedEvents") { () -> [String] in
+    Function("supportedEvents") { 
       return ["ToolInvocation"]
     }
 
-    AsyncFunction("isFoundationModelsEnabled") { () -> String in
+    AsyncFunction("isFoundationModelsEnabled") {
       return isFoundationModelsEnabled()
     }
 
-    AsyncFunction("configureSession") { (config: NSDictionary) in
-      return configureSession(config: config)
+    AsyncFunction("configureSession") { (config: [String: Any]) in
+      configureSession(config: config)
     }
 
-    AsyncFunction("generateStructuredOutput") { (options: NSDictionary) throws -> Any in
-      Task { return try await generateStructuredOutput(options: options) }
+    AsyncFunction("generateStructuredOutput") { (options: [String: Any]) async throws -> Any in
+      return try await generateStructuredOutput(options: options)
     }
 
-    AsyncFunction("generateText") { (options: NSDictionary) throws -> String in
-      Task { return try await generateText(options: options) }
+    AsyncFunction("generateText") { (options: [String: Any]) async throws -> String in
+      return try await generateText(options: options)
     }
 
-    AsyncFunction("resetSession") { () -> Bool in
+    AsyncFunction("resetSession") {
       return resetSession()
     }
 
-    AsyncFunction("generateWithTools") { (options: NSDictionary) throws -> String in
-      Task { return try await generateWithTools(options: options) }
+    AsyncFunction("generateWithTools") { (options: [String: Any]) async throws -> String in
+      return try await generateWithTools(options: options)
     }
   }
   // MARK: Declarations [END]
