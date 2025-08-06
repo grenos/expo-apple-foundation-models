@@ -1,6 +1,6 @@
 import ExpoModulesCore
 import FoundationModels
-
+@available(iOS 26, *)
 public class ExpoAppleFoundationModelsModule: Module {
    // MARK: Declarations [END]
   public func definition() -> ModuleDefinition {
@@ -23,7 +23,7 @@ public class ExpoAppleFoundationModelsModule: Module {
     }
 
     AsyncFunction("generateText") { (options: NSDictionary) throws -> Any in
-      return try generateText(prompt: options["prompt"] as? String ?? "")
+      return try generateText(options: NSDictionary)
     }
 
     AsyncFunction("resetSession") { () -> Bool in
@@ -36,10 +36,10 @@ public class ExpoAppleFoundationModelsModule: Module {
   }
   // MARK: Declarations [END]
 
-    private var session: LanguageModelSession?
-    private var registeredTools: [String: BridgeTool] = [:]
-    private var toolHandlers: [String: (String, [String: Any]) -> Void] = [:]
-    private var toolTimeout: Int = 30000
+    internal var session: LanguageModelSession?
+    internal var registeredTools: [String: BridgeTool] = [:]
+    internal var toolHandlers: [String: (String, [String: Any]) -> Void] = [:]
+    internal var toolTimeout: Int = 30000
 
   // MARK: Generables [START]
     @Generable

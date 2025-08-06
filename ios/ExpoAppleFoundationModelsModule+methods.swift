@@ -82,7 +82,7 @@ extension ExpoAppleFoundationModelsModule {
       }
   }
 
-  func generateText(prompt: String) throws -> Any {
+  func generateText(options: NSDictionary) throws -> Any {
      guard let session = session else {
         throw "SESSION_NOT_CONFIGURED"
       }
