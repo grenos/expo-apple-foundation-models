@@ -43,7 +43,7 @@ extension ExpoAppleFoundationModelsModule {
     return true
   }
 
-  func generateStructuredOutput(options: NSDictionary) async throws -> String {
+  func generateStructuredOutput(options: NSDictionary) async throws -> Any {
        guard let session = session else {
         throw NSError(domain: "BridgeToolError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Session not configured"])
       }
