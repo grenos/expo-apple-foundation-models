@@ -92,6 +92,9 @@ export default function App() {
 
             const response = await session.generateWithTools({
                 prompt: "What is the weather in Monrovia, California?",
+                toolTimeout: 10000,
+                maxTokens: 1000,
+                temperature: 0.7,
             });
             console.log(response);
             session.dispose();
