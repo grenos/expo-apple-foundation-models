@@ -56,8 +56,9 @@ extension ExpoAppleFoundationModelsModule {
       let _dynamicSchema: GenerationSchema
       do {
         _dynamicSchema = try GenerationSchema(root: dynamicSchema(from: schema), dependencies: [])
-      } catch {
-        throw NSError(domain: "generateStructuredOutput", code: 1, userInfo: [NSLocalizedDescriptionKey: "Generation schema error"])
+      } catch let error {
+          let errorMessage = handleGeneratedError(error as! LanguageModelSession.GenerationError)
+          throw NSError(domain: "generateStructuredOutput", code: 1, userInfo: [NSLocalizedDescriptionKey: errorMessage])
       }
 
       do {
@@ -69,8 +70,9 @@ extension ExpoAppleFoundationModelsModule {
         )
         let flattened = try flattenGeneratedContent(result.content)
         return flattened
-      } catch {
-        throw NSError(domain: "generateStructuredOutput", code: 1, userInfo: [NSLocalizedDescriptionKey: "Generation failed"])
+      } catch let error{
+          let errorMessage = handleGeneratedError(error as! LanguageModelSession.GenerationError)
+        throw NSError(domain: "generateStructuredOutput", code: 1, userInfo: [NSLocalizedDescriptionKey: errorMessage])
       }
   }
 
@@ -89,8 +91,9 @@ extension ExpoAppleFoundationModelsModule {
           options: GenerationOptions(sampling: .greedy)
         )
         return result.content
-      } catch {
-        throw NSError(domain: "generateText", code: 1, userInfo: [NSLocalizedDescriptionKey: "Generation failed"])
+      } catch let error {
+        let errorMessage = handleGeneratedError(error as! LanguageModelSession.GenerationError)
+        throw NSError(domain: "generateText", code: 1, userInfo: [NSLocalizedDescriptionKey: errorMessage])
       }
   }
 }
