@@ -79,4 +79,54 @@ export type ExpoAppleFoundationModels = {
     generateWithTools: (
         options: LLMGenerateWithToolsOptions
     ) => Promise<string>;
-};
+} & ExpoAppleFoundationModelsEvents;
+
+/**
+ * Type definition for the FoundationModel class
+ * Provides session-based management for Apple's Foundation Models (Apple Intelligence)
+ */
+export interface IFoundationModel {
+    /**
+     * Configure the session with options and tools
+     * @param options Configuration options for the LLM session
+     * @param tools Optional array of tool definitions that can be called by the LLM
+     * @returns Promise that resolves to true if configuration was successful
+     */
+    configure(
+        options: LLMConfigOptions,
+        tools?: ToolDefinition[]
+    ): Promise<boolean>;
+
+    /**
+     * Generate text using the configured session
+     * @param options Options containing the prompt for text generation
+     * @returns Promise that resolves to the generated text or response
+     */
+    generateText(options: LLMGenerateTextOptions): Promise<any>;
+
+    /**
+     * Generate structured output using a JSON schema
+     * @param options Options containing the structure schema and prompt
+     * @returns Promise that resolves to the structured output matching the schema
+     */
+    generateStructuredOutput(options: LLMGenerateOptions): Promise<any>;
+
+    /**
+     * Generate text with tool calling capabilities
+     * @param options Options for generation including prompt and tool parameters
+     * @returns Promise that resolves to the generated text with potential tool interactions
+     */
+    generateWithTools(options: LLMGenerateWithToolsOptions): Promise<any>;
+
+    /**
+     * Reset the session, clearing all tools and configuration
+     * @returns Promise that resolves to true if reset was successful
+     */
+    reset(): Promise<boolean>;
+
+    /**
+     * Dispose of the session and clean up all resources
+     * Should be called when the instance is no longer needed
+     */
+    dispose(): void;
+}

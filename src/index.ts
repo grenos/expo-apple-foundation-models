@@ -2,6 +2,7 @@
 
 import {
     FoundationModelsAvailability,
+    IFoundationModel,
     LLMConfigOptions,
     LLMGenerateOptions,
     LLMGenerateTextOptions,
@@ -11,7 +12,7 @@ import {
 import ExpoAppleFoundationModelsModule from "./ExpoAppleFoundationModelsModule";
 
 // and on native platforms to ExpoAppleFoundationModelsModule.ts
-export { default } from "./ExpoAppleFoundationModelsModule";
+// export { default } from "./ExpoAppleFoundationModelsModule";
 export * from "./ExpoAppleFoundationModels.types";
 
 /**
@@ -26,7 +27,7 @@ export const isFoundationModelsEnabled =
 /**
  * Class-based session management for Apple LLM
  */
-export class FoundationModels {
+export default class FoundationModels implements IFoundationModel {
     private toolHandlers = new Map<string, (parameters: any) => Promise<any>>();
     private isConfigured = false;
     private activeToolListener?: any;
@@ -43,11 +44,9 @@ export class FoundationModels {
 
         // Register new tools
         if (tools) {
-            await Promise.all(
-                tools.map(async (tool) => {
-                    await this.registerTool(tool);
-                })
-            );
+            for (const tool of tools) {
+                await this.registerTool(tool);
+            }
         }
 
         const success =
@@ -88,45 +87,42 @@ export class FoundationModels {
         }
 
         // Set up tool call listener
-        this.activeToolListener =
-            ExpoAppleFoundationModelsModule.onChangeToolInvocation(
-                async (event: {
-                    name: string;
-                    id: string;
-                    parameters: any;
-                }) => {
-                    try {
-                        const handler = this.toolHandlers.get(event.name);
-                        if (!handler) {
-                            await ExpoAppleFoundationModelsModule.handleToolResult(
-                                {
-                                    id: event.id,
-                                    success: false,
-                                    error: `No handler registered for tool: ${event.name}`,
-                                }
-                            );
-                            return;
-                        }
-
-                        const result = await handler(event.parameters);
-
-                        await ExpoAppleFoundationModelsModule.handleToolResult({
-                            id: event.id,
-                            success: true,
-                            result,
-                        });
-                    } catch (error) {
+        this.activeToolListener = ExpoAppleFoundationModelsModule.addListener(
+            "onChangeToolInvocation",
+            async (event: { name: string; id: string; parameters: any }) => {
+                try {
+                    const handler = this.toolHandlers.get(event.name);
+                    if (!handler) {
                         await ExpoAppleFoundationModelsModule.handleToolResult({
                             id: event.id,
                             success: false,
-                            error:
-                                error instanceof Error
-                                    ? error.message
-                                    : "Unknown error",
+                            error: `No handler registered for tool: ${event.name}`,
                         });
+
+                        return;
                     }
+
+                    const result = await handler(event.parameters);
+
+                    await ExpoAppleFoundationModelsModule.handleToolResult({
+                        id: event.id,
+                        success: true,
+                        result,
+                    });
+                } catch (error) {
+                    console.log("Event Listener Error");
+                    console.error(error);
+                    await ExpoAppleFoundationModelsModule.handleToolResult({
+                        id: event.id,
+                        success: false,
+                        error:
+                            error instanceof Error
+                                ? error.message
+                                : "Unknown error",
+                    });
                 }
-            );
+            }
+        );
 
         try {
             const result =
@@ -134,6 +130,9 @@ export class FoundationModels {
                     options
                 );
             return result;
+        } catch (error) {
+            console.error(error);
+            throw error;
         } finally {
             // Clean up listener
             if (this.activeToolListener) {
@@ -197,60 +196,3 @@ export class FoundationModels {
         }
     }
 }
-
-// Backward compatibility - global instance
-let defaultSession: FoundationModels | null = null;
-
-/**
- * Get or create the default session instance
- */
-const getDefaultSession = (): FoundationModels => {
-    if (!defaultSession) {
-        defaultSession = new FoundationModels();
-    }
-    return defaultSession;
-};
-
-/**
- * @deprecated Use AppleLLMSession class instead
- */
-export const configureSession = async (
-    options: LLMConfigOptions,
-    tools?: ToolDefinition[]
-): Promise<boolean> => {
-    return getDefaultSession().configure(options, tools);
-};
-
-/**
- * @deprecated Use AppleLLMSession class instead
- */
-export const generateText = async (
-    options: LLMGenerateTextOptions
-): Promise<any> => {
-    return getDefaultSession().generateText(options);
-};
-
-/**
- * @deprecated Use AppleLLMSession class instead
- */
-export const generateStructuredOutput = async (
-    options: LLMGenerateOptions
-): Promise<any> => {
-    return getDefaultSession().generateStructuredOutput(options);
-};
-
-/**
- * @deprecated Use AppleLLMSession class instead
- */
-export const generateWithTools = async (
-    options: LLMGenerateWithToolsOptions
-): Promise<any> => {
-    return getDefaultSession().generateWithTools(options);
-};
-
-/**
- * @deprecated Use AppleLLMSession class instead
- */
-export const resetSession = async (): Promise<boolean> => {
-    return getDefaultSession().reset();
-};

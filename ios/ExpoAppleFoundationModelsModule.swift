@@ -7,6 +7,8 @@ public class ExpoAppleFoundationModelsModule: Module {
   public func definition() -> ModuleDefinition {
     Name("FoundationModels")
 
+    Events("onChangeToolInvocation")
+
     Function("supportedEvents") { 
       return ["ToolInvocation"]
     }
@@ -15,8 +17,8 @@ public class ExpoAppleFoundationModelsModule: Module {
       return isFoundationModelsEnabled()
     }
 
-    AsyncFunction("configureSession") { (config: [String: Any]) in
-      configureSession(config: config)
+    AsyncFunction("configureSession") { (config: [String: Any]) async throws -> Bool in
+      return try await configureSession(config: config)
     }
 
     AsyncFunction("generateStructuredOutput") { (options: [String: Any]) async throws -> Any in
@@ -33,6 +35,14 @@ public class ExpoAppleFoundationModelsModule: Module {
 
     AsyncFunction("generateWithTools") { (options: [String: Any]) async throws -> String in
       return try await generateWithTools(options: options)
+    }
+
+    AsyncFunction("registerTool") { (toolDefinition: [String: Any]) async throws -> Bool in
+      return try await registerTool(toolDefinition: toolDefinition)
+    }
+
+    Function("handleToolResult") { (result: [String: Any]) throws -> Any in
+      return try handleToolResult(result: result)
     }
   }
   // MARK: Declarations [END]

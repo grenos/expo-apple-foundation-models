@@ -1,43 +1,55 @@
 import { useEvent } from "expo";
-import FoundationModels from "expo-apple-foundation-models";
+import FoundationModels, {
+    isFoundationModelsEnabled,
+    ToolDefinition,
+    ToolSchema,
+} from "expo-apple-foundation-models";
 import { useCallback, useState } from "react";
-import {
-    Button,
-    SafeAreaView,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { Button, SafeAreaView, ScrollView, Text, View } from "react-native";
+
+// Define your tools
+const weatherSchema: ToolSchema = {
+    name: "weather",
+    description: "Get the current weather in a given location",
+    parameters: {
+        city: {
+            type: "string",
+            description: "The city to get the weather for",
+            name: "city",
+        },
+    },
+};
+
+const weatherHandler = async (param: any) => {
+    return `The weather in ${param.city.value} is sunny.`;
+};
+
+const weatherTool: ToolDefinition = {
+    schema: weatherSchema,
+    handler: weatherHandler,
+};
 
 export default function App() {
     // const onChangePayload = useEvent(ExpoAppleFoundationModels, 'onChange');
 
-    const [isFoundationModelsEnabled, setIsFoundationModelsEnabled] = useState<
+    const [_isFoundationModelsEnabled, setIsFoundationModelsEnabled] = useState<
         string | undefined
     >();
 
     const [supportedEvents, setSupportedEvents] = useState<string[]>([]);
 
     const onFoundationModelsEnabled = useCallback(async () => {
-        const isEnabled = await FoundationModels.isFoundationModelsEnabled();
+        const isEnabled = await isFoundationModelsEnabled();
         setIsFoundationModelsEnabled(isEnabled);
         console.log(isEnabled);
     }, []);
 
-    const onSupportedEvents = useCallback(() => {
-        const events = FoundationModels.supportedEvents();
-        setSupportedEvents(events);
-        console.log(events);
-    }, []);
-
     const onGenerateText = useCallback(async () => {
         try {
-            const session = await FoundationModels.configureSession({
+            const session = new FoundationModels();
+            const configured = await session.configure({
                 instructions: "You are a helpful assistant.",
             });
-
-            console.log({ session });
 
             const response = await session.generateText({
                 prompt: "Explain React Native in one sentence",
@@ -51,21 +63,46 @@ export default function App() {
     }, []);
 
     const onGenerateStructuredOutput = useCallback(async () => {
-        const result = await FoundationModels.generateStructuredOutput({
-            prompt: "Hello, how are you?",
-        });
-        console.log(result);
+        try {
+            const session = new FoundationModels();
+            await session.configure({
+                instructions: "You are a helpful assistant.",
+            });
+
+            const result = await session.generateStructuredOutput({
+                prompt: "Extract name from: John Smith",
+                structure: { name: { type: "string" } },
+            });
+            console.log(result);
+            session.dispose();
+        } catch (error) {
+            console.error(error);
+        }
     }, []);
 
     const onGenerateWithTools = useCallback(async () => {
-        const result = await FoundationModels.generateWithTools({
-            prompt: "Hello, how are you?",
-        });
-        console.log(result);
+        try {
+            const session = new FoundationModels();
+            await session.configure(
+                {
+                    instructions: "You are a helpful assistant.",
+                },
+                [weatherTool]
+            );
+
+            const response = await session.generateWithTools({
+                prompt: "What is the weather in Monrovia, California?",
+            });
+            console.log(response);
+            session.dispose();
+        } catch (error) {
+            console.error(error);
+        }
     }, []);
 
     const onResetSession = useCallback(async () => {
-        const result = await FoundationModels.resetSession();
+        const session = new FoundationModels();
+        const result = await session.reset();
         console.log(result);
     }, []);
 
@@ -78,11 +115,10 @@ export default function App() {
                     <Text>Supported Events: {supportedEvents.join(", ")}</Text>
                     <Text>
                         Is Foundation Models Enabled:{" "}
-                        {isFoundationModelsEnabled}
+                        {_isFoundationModelsEnabled}
                     </Text>
                 </View>
 
-                <Button title="Supported Events" onPress={onSupportedEvents} />
                 <Button
                     title="Is Foundation Models Enabled"
                     onPress={onFoundationModelsEnabled}

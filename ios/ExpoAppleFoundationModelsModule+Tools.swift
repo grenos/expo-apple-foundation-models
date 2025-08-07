@@ -3,7 +3,7 @@ import FoundationModels
 
 @available(iOS 26, *)
 extension ExpoAppleFoundationModelsModule {
-  func registerTool(toolDefinition: NSDictionary) throws -> Bool {
+  func registerTool(toolDefinition: [String: Any]) throws -> Bool {
     guard let name = toolDefinition["name"] as? String,
       let description = toolDefinition["description"] as? String,
       let parameters = toolDefinition["parameters"] as? [String: [String: Any]] else {
@@ -21,7 +21,7 @@ extension ExpoAppleFoundationModelsModule {
     return true
   }
 
-  func handleToolResult(result: NSDictionary) throws -> Any {
+  func handleToolResult(result: [String: Any]) throws -> Any {
     guard let id = result["id"] as? String else {
       throw NSError(domain: "handleToolResult", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid result"])
     }

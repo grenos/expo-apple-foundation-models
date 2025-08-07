@@ -22,7 +22,8 @@ extension ExpoAppleFoundationModelsModule {
     #endif
   }
 
-  func configureSession(config: [String: Any]) {
+  func configureSession(config: [String: Any]) async throws -> Bool {
+    do {
     let instructions = Instructions {
       if let prompt = config["instructions"] as? String {
         prompt
@@ -31,8 +32,12 @@ extension ExpoAppleFoundationModelsModule {
       }
     }
 
-    let tools = Array(registeredTools.values)
-    self.session = LanguageModelSession(tools: tools, instructions: instructions)
+      let tools = Array(registeredTools.values)
+      self.session = LanguageModelSession(tools: tools, instructions: instructions)
+      return true
+    } catch {
+      return false
+    }
   }
 
   func generateStructuredOutput(options: [String: Any]) async throws -> Any {
