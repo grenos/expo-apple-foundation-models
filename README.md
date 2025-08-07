@@ -38,7 +38,7 @@ Then run:
 npx pod-install
 ```
 
-#### Alternative: Pure React Native Library
+#### Alternative: Bare React Native Library
 
 If you prefer to use a bare React Native library without Expo dependencies, you can use [react-native-apple-llm](https://github.com/deveix/react-native-apple-llm) instead. This library provides similar functionality but is designed specifically for bare React Native projects without requiring Expo modules.
 
