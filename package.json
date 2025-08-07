@@ -1,6 +1,6 @@
 {
     "name": "expo-apple-foundation-models",
-    "version": "0.1.0",
+    "version": "1.1.0",
     "description": "An expo package for Apple foundation models",
     "main": "build/index.js",
     "types": "build/index.d.ts",
