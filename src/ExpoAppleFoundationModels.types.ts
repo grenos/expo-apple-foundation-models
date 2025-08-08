@@ -1,5 +1,5 @@
 export type StructureProperty = {
-    type?: "string" | "integer" | "number" | "boolean" | "object";
+    type?: "string" | "integer" | "number" | "boolean" | "object" | "array";
     description?: string;
     enum?: string[];
     properties?: StructureSchema;
@@ -10,7 +10,7 @@ export type StructureSchema = {
 };
 
 export interface ToolParameter {
-    type: "string" | "integer" | "number" | "boolean" | "object";
+    type: "string" | "integer" | "number" | "boolean" | "object" | "array";
     description: string;
     name: string;
     enum?: string[];
